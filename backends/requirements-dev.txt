@@ -1,0 +1,10 @@
+-r requirements.txt
+pytest
+flake8
+pytest-django
+pytest-cov
+pytest-env
+isort
+pytest-mock
+model-bakery
+pyyaml
