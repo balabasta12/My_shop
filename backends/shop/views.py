@@ -1,20 +1,22 @@
-from webbrowser import get
-
+from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 from django.http import JsonResponse
+from django.views import View
+from requests import get
+from rest_framework.authtoken.models import Token
 from rest_framework.generics import ListAPIView
-from rest_framework.views import APIView
-from django.core.exceptions import ValidationError
-import yaml
-from yaml.loader import SafeLoader
 from rest_framework.response import Response
+from rest_framework.views import APIView
+from ujson import loads as load_json
+from yaml import load as load_yaml, Loader
 
 
 from shop.models import Shop, Category, ProductInfo, Product, ProductParameter, Parameter
+from shop.serializers import ProductListSerializer, CategorySerializer, ShopSerializer
 
 
 # Загрузка файла yaml
-from shop.serializers import ShopSerializer
+
 
 
 class PartnerUpdate(APIView):
@@ -40,7 +42,7 @@ class PartnerUpdate(APIView):
                 print(stream)
                 print(111111111111111111111111111)
 
-                data = yaml.load(stream, Loader=SafeLoader)
+                data = yaml.load(stream, Loader=Loader)  # ?
                 print(data)
 
                 shop, _ = Shop.objects.get_or_create(name=data['shop'], user_id=request.user.id)
@@ -70,12 +72,34 @@ class PartnerUpdate(APIView):
         return JsonResponse({'Status': False, 'Errors': 'Не указаны все необходимые аргументы'})
 
 
+class Autorization(APIView):
+    pass
+
+
+class Registration(APIView):
+    pass
+
+
 class ShopView(APIView):
-    """
-    Класс для просмотра списка магазинов
-    """
-    def get(self, request, *args):
-        Product.objects.get_or_create(name='Sumsung', category_id=6)
-        queryset = Shop.objects.all()
-        serializer = ShopSerializer(queryset, many=True)
+    def get (self, request, *args, **kwargs):
+        Shop.objects.create(name='Евросеточка')
+        queryset = Category.objects.all()
+        serializer = ShopSerializer
+        return Response(serializer.data)
+
+
+class CategoryView(APIView):
+    def get (self, request, *args, **kwargs):
+        Category.objects.create(name='Смартфоны',)
+        queryset = Category.objects.all()
+        serializer = CategorySerializer
+        return Response(serializer.data)
+
+
+class ProductListView(APIView):
+
+    def get (self, request, *args, **kwargs):
+        Product.objects.create(name='Samsung',)
+        queryset = Product.objects.all()
+        serializer = ProductListSerializer(queryset, many=True)
         return Response(serializer.data)
