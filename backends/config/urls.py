@@ -20,7 +20,7 @@ from shop.views import PartnerUpdate, ProductListView, ShopView, CategoryView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('shop/', ShopView.as_view()),
+    path('shops/', ShopView.as_view()),
     path('category/', CategoryView.as_view()),
     path('partner/update/', PartnerUpdate.as_view()),
     path('products/', ProductListView.as_view()),
