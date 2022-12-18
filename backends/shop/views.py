@@ -1,13 +1,9 @@
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 from django.http import JsonResponse
-from django.views import View
 from requests import get
-from rest_framework.authtoken.models import Token
-from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from ujson import loads as load_json
 from yaml import load as load_yaml, Loader
 
 
@@ -18,19 +14,19 @@ from shop.serializers import ProductListSerializer, CategorySerializer, ShopSeri
 # Загрузка файла yaml
 
 
-
 class PartnerUpdate(APIView):
     """
     Класс для обновления прайса от поставщика
     """
     def post(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return JsonResponse({'Status': False, 'Error': 'Log in required'}, status=403)
-
-        if request.user.type != 'shop':
-            return JsonResponse({'Status': False, 'Error': 'Только для магазинов'}, status=403)
+        # if not request.user.is_authenticated:
+        #     return JsonResponse({'Status': False, 'Error': 'Log in required'}, status=403)
+        #
+        # if request.user.type != 'shop':
+        #     return JsonResponse({'Status': False, 'Error': 'Только для магазинов'}, status=403)
 
         url = request.data.get('url')
+        print(url)
         if url:
             validate_url = URLValidator()
             try:
@@ -39,10 +35,7 @@ class PartnerUpdate(APIView):
                 return JsonResponse({'Status': False, 'Error': str(e)})
             else:
                 stream = get(url).content
-                print(stream)
-                print(111111111111111111111111111)
-
-                data = yaml.load(stream, Loader=Loader)  # ?
+                data = load_yaml(stream, Loader=Loader)
                 print(data)
 
                 shop, _ = Shop.objects.get_or_create(name=data['shop'], user_id=request.user.id)
@@ -81,15 +74,15 @@ class Registration(APIView):
 
 
 class ShopView(APIView):
-    def get (self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         Shop.objects.create(name='Евросеточка')
-        queryset = Category.objects.all()
-        serializer = ShopSerializer
+        queryset = Shop.objects.all()
+        serializer = ShopSerializer(queryset, many=True)
         return Response(serializer.data)
 
 
 class CategoryView(APIView):
-    def get (self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         Category.objects.create(name='Смартфоны',)
         queryset = Category.objects.all()
         serializer = CategorySerializer
