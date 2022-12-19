@@ -4,12 +4,14 @@ from django.http import JsonResponse
 from requests import get
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from yaml import load as load_yaml, Loader
-
-
-from shop.models import Shop, Category, ProductInfo, Product, ProductParameter, Parameter
-from shop.serializers import ProductListSerializer, CategorySerializer, ShopSerializer
-
+from shop.models import (Category, Parameter, Product, ProductInfo,
+                         ProductParameter, Shop, OrderItem, Order, Contact)
+from shop.serializers import (CategorySerializer, ContactSerializer,
+                              OrderSerializer, ParameterSerializer,
+                              ProductInfoSerializer, ProductListSerializer,
+                              ProductParameterSerializer, ShopSerializer, )
+from yaml import Loader
+from yaml import load as load_yaml
 
 # Загрузка файла yaml
 
@@ -75,7 +77,6 @@ class Registration(APIView):
 
 class ShopView(APIView):
     def get(self, request, *args, **kwargs):
-        Shop.objects.create(name='Евросеточка')
         queryset = Shop.objects.all()
         serializer = ShopSerializer(queryset, many=True)
         return Response(serializer.data)
@@ -83,16 +84,55 @@ class ShopView(APIView):
 
 class CategoryView(APIView):
     def get(self, request, *args, **kwargs):
-        Category.objects.create(name='Смартфоны',)
         queryset = Category.objects.all()
         serializer = CategorySerializer
         return Response(serializer.data)
 
 
 class ProductListView(APIView):
-
     def get (self, request, *args, **kwargs):
-        Product.objects.create(name='Samsung',)
         queryset = Product.objects.all()
         serializer = ProductListSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+
+class ProductInfoView(APIView):
+    def get(self, request):
+        queryset = ProductInfo.objects.all()
+        serializer = ProductInfoSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+
+class ParameterView(APIView):
+    def get(self, request):
+        queryset = Parameter.objects.all()
+        serializer = ParameterSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+
+class ProductParameterView(APIView):
+    def get(self, request):
+        queryset = ProductParameter.objects.all()
+        serializer = ProductParameterSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+
+class OrderView(APIView):
+    def get(self, request):
+        queryset = Order.objects.all()
+        serializer = OrderSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+
+class OrderItemView(APIView):
+    def get(self, request):
+        queryset = OrderItem.objects.all()
+        serializer = OrderSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+
+class ContactView(APIView):
+    def get(self, request):
+        queryset = Contact.objects.all()
+        serializer = ContactSerializer(queryset, many=True)
         return Response(serializer.data)
