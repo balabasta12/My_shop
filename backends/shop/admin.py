@@ -1,8 +1,8 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-
-from shop.models import Shop, Category, Product, ProductInfo, Parameter, ProductParameter, Order, OrderItem, \
-    Contact, ConfirmEmailToken, Us
+from shop.models import (Category, ConfirmEmailToken, Contact, Order,
+                         OrderItem, Parameter, Product, ProductInfo,
+                         ProductParameter, Shop, Us)
 
 
 @admin.register(Us)
