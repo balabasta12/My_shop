@@ -1,19 +1,59 @@
+from django.contrib import messages
+
+from django.contrib.auth.decorators import login_required
+
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
+from django.shortcuts import render
+
 from requests import get
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
+from shop.forms import UserRegisterForm
 from shop.models import (Category, Parameter, Product, ProductInfo,
-                         ProductParameter, Shop, OrderItem, Order, Contact)
+                         ProductParameter, Shop, OrderItem, Order, Contact, Us)
 from shop.serializers import (CategorySerializer, ContactSerializer,
                               OrderSerializer, ParameterSerializer,
                               ProductInfoSerializer, ProductListSerializer,
-                              ProductParameterSerializer, ShopSerializer, )
+                              ProductParameterSerializer, ShopSerializer)
 from yaml import Loader
 from yaml import load as load_yaml
 
-# Загрузка файла yaml
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+
+@login_required
+def login_view(self, request):
+    return render(request, 'login.html', locals())
+
+
+def register(request):
+    form = None
+    if request.method == 'POST':
+        form = UserRegisterForm(request.POST)
+        email = request.POST.get('email')
+        token = request.POST['csrfmiddlewaretoken']
+        print(token)
+        if User.objects.filter(email=email).exists():
+            messages.error(request, 'Пользователь с таким адрес уже существует!')
+        else:
+            if form.is_valid():
+                ins = form.save()
+                password = form.cleaned_data['password']
+                # user = authenticate(password=password, email=email)
+                ins.save()
+    else:
+        form = UserRegisterForm()
+    context = {'form': form}
+    return render(request, 'register.html', context)
+
+
+def home(request):
+    return render(request, 'home.html', locals())
 
 
 class PartnerUpdate(APIView):
@@ -28,7 +68,6 @@ class PartnerUpdate(APIView):
         #     return JsonResponse({'Status': False, 'Error': 'Только для магазинов'}, status=403)
 
         url = request.data.get('url')
-        print(url)
         if url:
             validate_url = URLValidator()
             try:
@@ -67,14 +106,6 @@ class PartnerUpdate(APIView):
         return JsonResponse({'Status': False, 'Errors': 'Не указаны все необходимые аргументы'})
 
 
-class Autorization(APIView):
-    pass
-
-
-class Registration(APIView):
-    pass
-
-
 class ShopView(APIView):
     def get(self, request, *args, **kwargs):
         queryset = Shop.objects.all()
@@ -85,7 +116,7 @@ class ShopView(APIView):
 class CategoryView(APIView):
     def get(self, request, *args, **kwargs):
         queryset = Category.objects.all()
-        serializer = CategorySerializer
+        serializer = CategorySerializer(queryset, many=True)
         return Response(serializer.data)
 
 

@@ -1,7 +1,12 @@
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
 from shop.models import (Category, Contact, Order, OrderItem, Parameter,
-                         Product, ProductInfo, ProductParameter, Shop)
+                         Product, ProductInfo, ProductParameter, Shop, Us)
+
+class UsSerializer(ModelSerializer):
+    class Meta:
+        model = Us
+        fields = ('id', 'username', 'email',)
 
 
 class ShopSerializer(ModelSerializer):
